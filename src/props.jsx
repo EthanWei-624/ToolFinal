@@ -1,5 +1,6 @@
 import React from 'react';
 import { PAL, TILE_SIZE, MAP, MAP_H, DOORS, SIGNS } from './constants.js';
+import { RoundLoaf } from './bread.jsx';
 
 // =============================================================================
 // PROPS — standalone decorative items placed at specific tile positions
@@ -212,21 +213,6 @@ const Crates = ({ x, y }) => (
     <rect x={x + 6}  y={y + 4}  width="14" height="1"  fill={PAL.woodH} />
     <rect x={x + 6}  y={y + 11} width="14" height="1"  fill={PAL.woodD} />
     <rect x={x + 12} y={y + 4}  width="2"  height="8"  fill={PAL.woodD} />
-  </g>
-);
-
-// =============================================================================
-// BREAD PROPS — RoundLoaf moved here so buildExtras can use it
-// =============================================================================
-
-const RoundLoaf = ({ x, y, w = 14, h = 8 }) => (
-  <g shapeRendering="crispEdges">
-    <rect x={x + 1} y={y} width={w - 2} height="1" fill="#a8602a" />
-    <rect x={x} y={y + 1} width={w} height={h - 2} fill="#d89040" />
-    <rect x={x + 1} y={y + h - 1} width={w - 2} height="1" fill="#7a4520" />
-    <rect x={x + 2} y={y + 1} width={w - 4} height="1" fill="#f0b46a" />
-    <rect x={x + 4} y={y + 3} width="1" height="1" fill="#3a2418" />
-    <rect x={x + 8} y={y + 2} width="1" height="1" fill="#3a2418" />
   </g>
 );
 

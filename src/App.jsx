@@ -1,76 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { PLAYER_START, isWalkable, getDoorAt, PAL } from './constants.js';
-import { NPCS } from './npcs.js';
+import { PLAYER_START, isWalkable, getDoorAt } from './constants.js';
 import { World } from './world.jsx';
 import { ChatOverlay } from './chat.jsx';
-
-// =============================================================================
-// INVENTORY
-// =============================================================================
-
-const ITEM_EMOJI = { bread: '🍞', page: '📄', crystal: '💎', envelope: '✉', key: '🗝' };
-const NPC_ORDER = ['wang', 'marcel', 'vera', 'owen', 'mayor'];
-
-const Inventory = ({ inventory, onReset }) => {
-  const [hovered, setHovered] = useState(null);
-  const itemsByNpc = {};
-  for (const item of inventory) itemsByNpc[item.fromNpc] = item;
-
-  return (
-    <div style={{
-      position: 'fixed', top: '12px', right: '12px',
-      background: 'rgba(58, 36, 24, 0.92)',
-      border: `3px solid ${PAL.woodH}`,
-      borderRight: `3px solid ${PAL.woodD}`, borderBottom: `3px solid ${PAL.woodD}`,
-      padding: '10px 12px', fontFamily: "'Press Start 2P', monospace",
-      color: PAL.apron, fontSize: '8px', letterSpacing: '1px',
-      zIndex: 50, maxWidth: '200px',
-    }}>
-      <div style={{ marginBottom: '8px', color: PAL.gold, textAlign: 'center' }}>
-        ★ {inventory.length}/5 ★
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '4px' }}>
-        {NPC_ORDER.map(id => {
-          const got = itemsByNpc[id];
-          return (
-            <div key={id}
-              onMouseEnter={() => setHovered(id)} onMouseLeave={() => setHovered(null)}
-              style={{
-                width: '28px', height: '28px',
-                background: got ? PAL.gold : '#2a1a0e',
-                border: `2px solid ${got ? '#fff8c8' : PAL.woodM}`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '14px', color: got ? PAL.woodD : PAL.woodM,
-                cursor: got ? 'help' : 'default',
-              }}
-              title={got ? got.name : `from ${NPCS[id].displayName}`}
-            >{got ? ITEM_EMOJI[got.id] : '?'}</div>
-          );
-        })}
-      </div>
-      {hovered && itemsByNpc[hovered] && (
-        <div style={{
-          marginTop: '8px', padding: '6px 8px',
-          background: '#1a0e08', border: `1px solid ${PAL.woodM}`,
-          fontFamily: "'Patrick Hand', sans-serif", fontSize: '12px',
-          color: PAL.apron, letterSpacing: '0', lineHeight: '1.3',
-        }}>
-          <strong>{itemsByNpc[hovered].name}</strong>
-        </div>
-      )}
-      <button onClick={onReset} style={{
-        marginTop: '10px', width: '100%', background: 'transparent',
-        border: `1px solid ${PAL.woodM}`, color: PAL.apron,
-        fontFamily: "'Press Start 2P', monospace", fontSize: '7px',
-        padding: '4px', cursor: 'pointer', letterSpacing: '1px', opacity: 0.6,
-      }}>RESET</button>
-    </div>
-  );
-};
-
-// =============================================================================
-// MAIN APP
-// =============================================================================
+import { Inventory } from './inventory.jsx';
+import { WelcomeScreen, computeVp } from './welcome.jsx';
 
 export default function App() {
   const [player, setPlayer] = useState({ ...PLAYER_START, dir: 'down' });
@@ -257,46 +190,4 @@ export default function App() {
       }`}</style>
     </div>
   );
-}
-
-const WelcomeScreen = ({ onClose }) => (
-  <div style={{
-    position: 'fixed', inset: 0,
-    background: 'rgba(20, 12, 6, 0.95)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    zIndex: 200, fontFamily: "'Patrick Hand', sans-serif", padding: '20px',
-  }}>
-    <div style={{
-      maxWidth: '480px', background: '#3a2418',
-      border: '4px solid #b08560',
-      borderRight: '4px solid #1a0e08', borderBottom: '4px solid #1a0e08',
-      padding: '24px', color: '#f0e2c4', textAlign: 'center',
-    }}>
-      <div style={{
-        fontFamily: "'Press Start 2P', monospace", color: '#e0c46a',
-        fontSize: '14px', letterSpacing: '2px',
-        marginBottom: '16px', lineHeight: 1.6,
-      }}>THE TOWN<br/>THAT DIDN'T</div>
-      <div style={{ fontSize: '17px', lineHeight: '1.6', marginBottom: '20px' }}>
-        A small town. Five people who never quite got where they were going.<br/><br/>
-        Each of them has something. Each has a reason they won't give it to you.<br/><br/>
-        Find out why.
-      </div>
-      <button onClick={onClose} style={{
-        background: '#c14e3e', border: '3px solid #8b3a2e',
-        color: '#f0e2c4', fontFamily: "'Press Start 2P', monospace",
-        fontSize: '11px', padding: '12px 20px',
-        cursor: 'pointer', letterSpacing: '1px',
-        boxShadow: '3px 3px 0 #1a0e08',
-      }}>ENTER THE TOWN</button>
-    </div>
-  </div>
-);
-
-function computeVp() {
-  const maxW = Math.min(window.innerWidth - 48, 720);
-  const maxH = Math.min(window.innerHeight - 200, 480);
-  const w = Math.floor(maxW / 24) * 24;
-  const h = Math.floor(maxH / 24) * 24;
-  return { w: Math.max(360, w), h: Math.max(264, h) };
 }
