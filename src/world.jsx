@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { MAP, MAP_W, MAP_H, TILE_SIZE, TILES, PAL } from './constants.js';
+import { MAP, MAP_W, MAP_H, TILE_SIZE, TILES, PAL, QUEST_CLUES } from './constants.js';
 import { tileVariant, hash, PlayerSprite, TileDecoration } from './sprites.jsx';
 import { buildExtras, BridgeExtras } from './props.jsx';
 
@@ -98,6 +98,30 @@ const World = ({ player, vw, vh, walkFrame }) => {
     return list;
   }, [sRow, eRow, sCol, eCol]);
 
+  const clueMarkers = useMemo(() => {
+    return Object.keys(QUEST_CLUES)
+      .filter(key => {
+        const [r, c] = key.split(',').map(Number);
+        return r >= sRow - 1 && r < eRow + 1 && c >= sCol - 1 && c < eCol + 1;
+      })
+      .map(key => {
+        const [r, c] = key.split(',').map(Number);
+        const x = c * TILE_SIZE + 4;
+        const y = r * TILE_SIZE + 2;
+        return (
+          <g key={`clue-${key}`}>
+            <rect x={x} y={y} width={10} height={12} fill="#f0e2c4" />
+            <rect x={x} y={y} width={10} height={1} fill="#b08560" />
+            <rect x={x} y={y} width={1} height={12} fill="#b08560" />
+            <rect x={x + 2} y={y + 3} width={6} height={1} fill="#8a6a3a" />
+            <rect x={x + 2} y={y + 5} width={6} height={1} fill="#8a6a3a" />
+            <rect x={x + 2} y={y + 7} width={4} height={1} fill="#8a6a3a" />
+            <rect x={x + 4} y={y - 1} width={2} height={2} fill="#c14e3e" />
+          </g>
+        );
+      });
+  }, [sRow, eRow, sCol, eCol]);
+
   const extras = useMemo(buildExtras, []);
 
   return (
@@ -108,6 +132,7 @@ const World = ({ player, vw, vh, walkFrame }) => {
       {decorations}
       <BridgeExtras />
       {extras}
+      {clueMarkers}
       <g transform={`translate(${player.col * TILE_SIZE}, ${player.row * TILE_SIZE})`}>
         <PlayerSprite dir={player.dir} walkFrame={walkFrame} />
       </g>

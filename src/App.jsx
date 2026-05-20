@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { PLAYER_START, isWalkable, getDoorAt } from './constants.js';
+import { PLAYER_START, isWalkable, getDoorAt, getClueAt } from './constants.js';
 import { World } from './world.jsx';
 import { ChatOverlay } from './chat.jsx';
 import { Inventory } from './inventory.jsx';
@@ -13,6 +13,9 @@ export default function App() {
   const [npcMet, setNpcMet] = useState({});
   const [activeNpc, setActiveNpc] = useState(null);
   const [showWelcome, setShowWelcome] = useState(true);
+  const [questStates, setQuestStates] = useState({ wang: 'idle', marcel: 'idle', vera: 'idle', owen: 'idle', mayor: 'idle' });
+  const [activeClue, setActiveClue] = useState(null);
+  const [showEnding, setShowEnding] = useState(false);
 
   useEffect(() => {
     const link = document.createElement('link');
@@ -27,6 +30,14 @@ export default function App() {
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
+
+  useEffect(() => {
+    setActiveClue(getClueAt(player.row, player.col));
+  }, [player.row, player.col]);
+
+  useEffect(() => {
+    if (inventory.length >= 5) setShowEnding(true);
+  }, [inventory.length]);
 
   const movePlayer = useCallback((row, col, dir) => {
     setPlayer(prev => ({ row, col, dir: dir || prev.dir }));
@@ -52,6 +63,14 @@ export default function App() {
     setActiveNpc(null);
   }, []);
 
+  const handleQuestActivated = useCallback(() => {
+    setQuestStates(prev => ({ ...prev, [activeNpc]: 'active' }));
+  }, [activeNpc]);
+
+  const handleQuestComplete = useCallback(() => {
+    setQuestStates(prev => ({ ...prev, [activeNpc]: 'complete' }));
+  }, [activeNpc]);
+
   const handleMessage = useCallback((msg) => {
     setNpcHistories(prev => ({
       ...prev,
@@ -72,6 +91,8 @@ export default function App() {
     setInventory([]);
     setNpcHistories({});
     setNpcMet({});
+    setQuestStates({ wang: 'idle', marcel: 'idle', vera: 'idle', owen: 'idle', mayor: 'idle' });
+    setShowEnding(false);
   }, []);
 
   useEffect(() => {
@@ -172,6 +193,20 @@ export default function App() {
         <World player={player} vw={vp.w} vh={vp.h} walkFrame={walkFrame} />
       </div>
 
+      {activeClue && (
+        <div style={{
+          fontFamily: "'Patrick Hand', sans-serif",
+          background: '#3a2418', border: '3px solid #b08560',
+          borderTop: 'none', color: '#f0e2c4',
+          padding: '8px 16px', textAlign: 'center',
+          fontSize: '14px', whiteSpace: 'pre-line',
+          width: vp.w + 8, boxSizing: 'border-box',
+          boxShadow: '3px 3px 0 #1a0e08',
+        }}>
+          📜 {activeClue}
+        </div>
+      )}
+
       <Inventory inventory={inventory} onReset={resetGame} />
 
       {activeNpc && (
@@ -179,10 +214,50 @@ export default function App() {
           history={npcHistory} isFirstMeeting={isFirstMeeting}
           onClose={handleCloseChat} onMessage={handleMessage}
           onItemReceived={handleItemReceived}
+          questState={questStates[activeNpc]}
+          onQuestActivated={handleQuestActivated}
+          onQuestComplete={handleQuestComplete}
         />
       )}
 
       {showWelcome && <WelcomeScreen onClose={() => setShowWelcome(false)} />}
+
+      {showEnding && (
+        <div style={{
+          position: 'fixed', inset: 0,
+          background: 'rgba(10, 6, 3, 0.97)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 300, fontFamily: "'Press Start 2P', monospace", padding: '20px',
+        }}>
+          <div style={{
+            maxWidth: '500px', color: '#f0e2c4', textAlign: 'center', padding: '32px',
+            background: '#3a2418', border: '4px solid #b08560',
+            borderRight: '4px solid #1a0e08', borderBottom: '4px solid #1a0e08',
+          }}>
+            <div style={{ color: '#e0c46a', fontSize: '12px', letterSpacing: '2px', marginBottom: '24px', lineHeight: 1.8 }}>
+              ★ YOU LEAVE THE TOWN ★
+            </div>
+            <div style={{ fontSize: '13px', lineHeight: 1.9, marginBottom: '24px', fontFamily: "'Patrick Hand', sans-serif" }}>
+              You found them. Five things, each held too long.<br /><br />
+              The town watches you go. No one waves.<br /><br />
+              Maybe they're used to it by now.
+            </div>
+            <div style={{ fontSize: '9px', marginBottom: '12px', color: '#a89070', letterSpacing: '1px' }}>ITEMS COLLECTED</div>
+            {inventory.map(item => (
+              <div key={item.id} style={{ fontSize: '11px', lineHeight: 2, color: '#e0c46a' }}>
+                · {item.name.toUpperCase()}
+              </div>
+            ))}
+            <button onClick={() => { setPlayer({...PLAYER_START, dir: 'down'}); setInventory([]); setNpcHistories({}); setNpcMet({}); setQuestStates({wang:'idle',marcel:'idle',vera:'idle',owen:'idle',mayor:'idle'}); setShowEnding(false); }} style={{
+              marginTop: '24px',
+              background: '#c14e3e', border: '3px solid #8b3a2e',
+              color: '#f0e2c4', fontFamily: "'Press Start 2P', monospace",
+              fontSize: '10px', padding: '12px 20px', cursor: 'pointer',
+              letterSpacing: '1px', boxShadow: '3px 3px 0 #1a0e08',
+            }}>PLAY AGAIN</button>
+          </div>
+        </div>
+      )}
 
       <style>{`@keyframes townblink {
         0%, 60%, 100% { opacity: 0.3; }

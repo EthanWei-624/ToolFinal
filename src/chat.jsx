@@ -13,7 +13,13 @@ const parseGiveToken = (text) => {
   return { gave: false, cleanText: text };
 };
 
-const ChatOverlay = ({ npcId, history, isFirstMeeting, onClose, onMessage, onItemReceived }) => {
+const parseQuestToken = (text) => {
+  const regex = /\[QUEST\]\s*/i;
+  if (regex.test(text)) return { hadQuest: true, cleanText: text.replace(regex, '').trim() };
+  return { hadQuest: false, cleanText: text };
+};
+
+const ChatOverlay = ({ npcId, history, isFirstMeeting, onClose, onMessage, onItemReceived, questState = 'idle', onQuestActivated = () => {}, onQuestComplete = () => {} }) => {
   const npc = NPCS[npcId];
   if (!npc) return null;
 
@@ -61,6 +67,26 @@ const ChatOverlay = ({ npcId, history, isFirstMeeting, onClose, onMessage, onIte
     setLoading(true);
     setTalking(true);
 
+    let questAddition = '';
+    let triggeredNow = false;
+    if (npc.quest && questState !== 'complete') {
+      const msgLower = userMsg.content.toLowerCase();
+      if (questState === 'idle') {
+        if (npc.quest.triggerKeywords.some(kw => msgLower.includes(kw))) {
+          triggeredNow = true;
+          onQuestActivated();
+          questAddition = `\n\n[HIDDEN QUEST — ACTIVATE NOW]\nStart your reply with the token [QUEST] on its own line. Then in your own voice and character, send the player on a quest to find something written somewhere in town. The underlying challenge: "${npc.quest.question}" Be in-character and mysterious.`;
+        }
+      } else if (questState === 'active') {
+        const correct = npc.quest.acceptedAnswers.some(a => msgLower.includes(a.toLowerCase()));
+        if (correct) {
+          questAddition = `\n\n[QUEST ANSWER — CORRECT]\nThe player gave the correct answer. React in character with surprise or delight. Give them [GIVE] now. The condition is fully met.`;
+        } else {
+          questAddition = `\n\n[QUEST — STILL SEARCHING]\nYou are waiting for the player to bring back a specific answer from somewhere in town. If they seem to be guessing or giving wrong answers, tell them in-character that they haven't found the right thing yet. If talking about something else, respond normally.`;
+        }
+      }
+    }
+
     try {
       const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
       if (!apiKey) throw new Error('API key missing — rename your env file to .env and restart npm run dev');
@@ -75,20 +101,22 @@ const ChatOverlay = ({ npcId, history, isFirstMeeting, onClose, onMessage, onIte
         body: JSON.stringify({
           model: "claude-haiku-4-5-20251001",
           max_tokens: 400,
-          system: npc.systemPrompt,
+          system: npc.systemPrompt + questAddition,
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
         }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(`API ${response.status}: ${data.error?.message || response.statusText}`);
       const rawReply = data.content?.filter(b => b.type === 'text')?.map(b => b.text)?.join('\n') || "...";
-      const { gave, cleanText } = parseGiveToken(rawReply);
+      const { hadQuest, cleanText: afterQuest } = parseQuestToken(rawReply);
+      const { gave, cleanText } = parseGiveToken(afterQuest);
       const assistantMsg = { role: 'assistant', content: cleanText };
       setMessages([...newMessages, assistantMsg]);
       onMessage(assistantMsg);
       if (gave && !itemReceived) {
         setItemReceived(true);
         onItemReceived(npc.item);
+        if (questState === 'active' || triggeredNow) onQuestComplete();
       }
     } catch (error) {
       const errorMsg = { role: 'assistant', content: `...error: ${error.message}` };
@@ -136,6 +164,29 @@ const ChatOverlay = ({ npcId, history, isFirstMeeting, onClose, onMessage, onIte
             cursor: 'pointer', padding: '0 4px',
           }} title="Leave (Esc)">✕ LEAVE</button>
         </div>
+
+        {questState === 'active' && (
+          <div style={{
+            background: '#2a4818', padding: '5px 14px',
+            borderLeft: `4px solid ${PAL.woodH}`, borderRight: `4px solid ${PAL.woodD}`,
+            fontFamily: "'Press Start 2P', monospace", color: '#7ab058',
+            fontSize: '8px', textAlign: 'center', letterSpacing: '1px',
+            flexShrink: 0,
+          }}>
+            ✦ QUEST ACTIVE — FIND THE ANSWER IN TOWN ✦
+          </div>
+        )}
+        {questState === 'complete' && (
+          <div style={{
+            background: '#1a3810', padding: '5px 14px',
+            borderLeft: `4px solid ${PAL.woodH}`, borderRight: `4px solid ${PAL.woodD}`,
+            fontFamily: "'Press Start 2P', monospace", color: '#e0c46a',
+            fontSize: '8px', textAlign: 'center', letterSpacing: '1px',
+            flexShrink: 0,
+          }}>
+            ✦ QUEST COMPLETE ✦
+          </div>
+        )}
 
         {/* SCENE */}
         <div style={{

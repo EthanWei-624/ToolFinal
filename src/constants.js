@@ -148,6 +148,15 @@ const SIGNS = {
   '12,21': "TOWN HALL",
 };
 
+const QUEST_CLUES = {
+  '1,10':  "MIRA'S LUCKY NUMBER: 7",
+  '9,25':  "LAST DELIVERY: MARCH 3",
+  '18,24': "WANG'S OVEN: 375°",
+  '19,5':  "WORKING TITLE:\nTHE WEIGHT OF SMALL WINDOWS",
+  '20,17': "FOUNDED: 1887",
+};
+const getClueAt = (r, c) => QUEST_CLUES[`${r},${c}`] || null;
+
 const PLAYER_START = { row: 10, col: 14 };
 
 const isWalkable = (r, c) => {
@@ -156,4 +165,4 @@ const isWalkable = (r, c) => {
 };
 const getDoorAt = (r, c) => DOORS[`${r},${c}`] || null;
 
-export { TILE_SIZE, PAL, TILES, MAP, MAP_W, MAP_H, DOORS, SIGNS, PLAYER_START, isWalkable, getDoorAt };
+export { TILE_SIZE, PAL, TILES, MAP, MAP_W, MAP_H, DOORS, SIGNS, QUEST_CLUES, getClueAt, PLAYER_START, isWalkable, getDoorAt };

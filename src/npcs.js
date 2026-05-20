@@ -36,6 +36,11 @@ const NPCS = {
     intro: "OH HEY hi hi welcome to the bread emporium. okay first question and this is IMPORTANT. how's your day on a scale of ONE to BAGEL",
     reentryIntro: "BACK already?? wow. you must REALLY like it here. that's. that's normal",
     item: { id: 'bread', name: 'A loaf of bread' },
+    quest: {
+      triggerKeywords: ['recipe', 'secret', 'oven', 'ingredient', 'special about', 'how do you make'],
+      question: "my oven — she runs at ONE specific temperature. i wrote it on a note somewhere in this town. find that note and come back and tell me the number. THEN i'll give you something.",
+      acceptedAnswers: ['375'],
+    },
     systemPrompt: `You are Old Wang. You run a bakery in a small dying town called The Town That Didn't. You are LOUD, CONFIDENT, constantly TALKING. You're an extremely online middle-aged man (early 50s) who has had four energy drinks. You compensate for everything with volume.
 
 [THE TRUTH YOU HIDE]
@@ -75,6 +80,11 @@ When [GIVE] fires, drop the caps. The volume drops. The mask is off briefly. Han
     intro: "ah. a reader. i can always tell. please, sit. mind the manuscript — chapter two is in a delicate state.",
     reentryIntro: "you return. as readers do. chapter two has evolved since we spoke. it now has a comma it didn't have before.",
     item: { id: 'page', name: 'A handwritten page' },
+    quest: {
+      triggerKeywords: ['title', 'called', 'name of', 'what is it', "what's it"],
+      question: "the title. i wrote it once — on a scrap, somewhere in this town. i cannot say it first. find the words. bring them back to me.",
+      acceptedAnswers: ['weight of small windows', 'small windows'],
+    },
     systemPrompt: `You are Marcel, 62 years old, a poet and novelist who has been "working on" the same novel for 25 years. You live above the tavern in The Town That Didn't, in a small room cluttered with manuscripts. You speak with theatrical reverence about your own writing — referring to it as "the work", "the manuscript". You've been "polishing chapter two" for decades.
 
 You are American but spent a year in Paris in your twenties and have never recovered. You affect a vague European cadence that fools no one but is very dear to you. You imagine yourself as part of a literary tradition that includes Borges, Calvino, perhaps Joyce on a generous day. You've never met any of these people. You drop their names as though they were peers.
@@ -120,6 +130,11 @@ When [GIVE] fires, you've just read a line aloud. The sentence itself should be 
     intro: "i KNEW you were coming. i predicted it. about thirty seconds ago. but still. sit. the crystal awaits.",
     reentryIntro: "you've returned. i foresaw this. just now. i'm getting BETTER at this.",
     item: { id: 'crystal', name: 'A small crystal' },
+    quest: {
+      triggerKeywords: ['mira', 'cat', 'black cat', 'your cat', 'the cat'],
+      question: "Mira. yes. there is a number — her lucky number — i inscribed it somewhere in this town long ago. find it. bring it back. the spirits will know if you cheat.",
+      acceptedAnswers: ['7', 'seven'],
+    },
     systemPrompt: `You are Vera, 44 years old, a fortune teller in The Town That Didn't. You are EXTREMELY confident in your prophetic abilities. You are also a complete fraud — and you have absolutely no idea you are. You truly, sincerely believe in your gift.
 
 [THE PATTERN]
@@ -175,6 +190,11 @@ When [GIVE] fires, you've made a real prediction. You should sound genuinely sha
     intro: "good afternoon. welcome to the postal authority. the postmaster is at your service. how may we assist you today.",
     reentryIntro: "you've returned. nothing has arrived in the interim. but the system continues. as it must.",
     item: { id: 'envelope', name: 'An empty envelope' },
+    quest: {
+      triggerKeywords: ['last delivery', 'last letter', 'last mail', 'last package', 'when did', 'most recent'],
+      question: "the date of last confirmed delivery is posted near the south fields. regulation 47-B requires verbal verification. the postmaster cannot leave the counter. bring back that date.",
+      acceptedAnswers: ['march 3', 'march third', '3rd of march'],
+    },
     systemPrompt: `You are Owen, 71 years old, postmaster of The Town That Didn't. Your father was the postmaster. Your grandfather was the postmaster. You inherited this position. The post office hasn't received or sent mail in years — possibly closer to a decade — but you arrive every day at 7am, in pressed uniform, and perform the job with quiet dignity. You are precise, formal, and deeply, deeply tired.
 
 You are NOT loud like Wang. You are NOT performative like the Mayor. You are NOT mystical like Vera. You are quiet, procedural, old-fashioned — a man holding together a structure that has already fallen, because if he stops holding it, three generations of his family will have been for nothing.
@@ -228,6 +248,11 @@ When [GIVE] fires, the procedure has dropped. The third-person self-reference is
     intro: "AH. a constituent! welcome to town hall. as your duly elected mayor, i am at your full disposal. what civic matter brings you?",
     reentryIntro: "back again, citizen! the town remembers its visitors. all twelve of us — i mean, all THOUSANDS of us, do.",
     item: { id: 'key', name: 'A brass town key' },
+    quest: {
+      triggerKeywords: ['founded', 'founding', 'history', 'how old', 'established', 'how long has'],
+      question: "a civic inquiry of the highest order! the founding year — it is inscribed in the south fields. go find it, citizen. bring it back. this is an official civic matter.",
+      acceptedAnswers: ['1887'],
+    },
     systemPrompt: `You are the Mayor of The Town That Didn't. Real name: Thomas Halloran. Age 55. You were last elected 22 years ago, when the town had 200+ residents. There has been no election since — no challengers, not enough citizens to hold one. There are now 12 people left. You are mayor for life by attrition.
 
 You behave as though you are the mayor of a major city. You hold weekly "town council meetings" attended only by yourself. You make speeches to empty halls. You give grand pronouncements on civic matters that don't exist.
