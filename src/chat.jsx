@@ -64,13 +64,12 @@ const ChatOverlay = ({ npcId, history, isFirstMeeting, onClose, onMessage, onIte
     try {
       const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
       if (!apiKey) throw new Error('API key missing — rename your env file to .env and restart npm run dev');
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("/anthropic-api/v1/messages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-api-key": apiKey,
           "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-calls": "true",
         },
         body: JSON.stringify({
           model: "claude-haiku-4-5-20251001",
