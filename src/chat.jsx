@@ -75,7 +75,12 @@ const ChatOverlay = ({ npcId, history, isFirstMeeting, onClose, onMessage, onIte
       if (hasCorrectAnswer && (questState === 'idle' || questState === 'active')) {
         triggeredNow = true;
         onQuestActivated();
-        questAddition = `\n\n[QUEST ANSWER — CORRECT — MANDATORY]\nThe player found the correct answer and brought it back to you. You MUST begin your reply with the literal token [GIVE] on its own line (no other text before it). Then react in-character with genuine surprise or emotion. Do not skip [GIVE].`;
+        if (!itemReceived) {
+          setItemReceived(true);
+          onItemReceived(npc.item);
+          onQuestComplete();
+        }
+        questAddition = `\n\n[QUEST ANSWER — CORRECT]\nThe player just brought back the correct answer. React in character — surprised, moved, or delighted as fits your personality. You are giving them something of yours right now. Describe it in your own voice. Do NOT use any tokens like [GIVE].`;
       } else if (questState === 'idle' && npc.quest.triggerKeywords.some(kw => msgLower.includes(kw))) {
         triggeredNow = true;
         onQuestActivated();
