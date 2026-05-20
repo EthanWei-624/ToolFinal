@@ -62,11 +62,13 @@ const ChatOverlay = ({ npcId, history, isFirstMeeting, onClose, onMessage, onIte
     setTalking(true);
 
     try {
+      const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
+      if (!apiKey) throw new Error('API key missing — rename your env file to .env and restart npm run dev');
       const response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-api-key": import.meta.env.VITE_ANTHROPIC_API_KEY,
+          "x-api-key": apiKey,
           "anthropic-version": "2023-06-01",
           "anthropic-dangerous-direct-browser-calls": "true",
         },
@@ -78,6 +80,7 @@ const ChatOverlay = ({ npcId, history, isFirstMeeting, onClose, onMessage, onIte
         }),
       });
       const data = await response.json();
+      if (!response.ok) throw new Error(`API ${response.status}: ${data.error?.message || response.statusText}`);
       const rawReply = data.content?.filter(b => b.type === 'text')?.map(b => b.text)?.join('\n') || "...";
       const { gave, cleanText } = parseGiveToken(rawReply);
       const assistantMsg = { role: 'assistant', content: cleanText };
@@ -88,7 +91,7 @@ const ChatOverlay = ({ npcId, history, isFirstMeeting, onClose, onMessage, onIte
         onItemReceived(npc.item);
       }
     } catch (error) {
-      const errorMsg = { role: 'assistant', content: '...connection lost. try again.' };
+      const errorMsg = { role: 'assistant', content: `...error: ${error.message}` };
       setMessages([...newMessages, errorMsg]);
       onMessage(errorMsg);
     } finally {
