@@ -71,19 +71,17 @@ const ChatOverlay = ({ npcId, history, isFirstMeeting, onClose, onMessage, onIte
     let triggeredNow = false;
     if (npc.quest && questState !== 'complete') {
       const msgLower = userMsg.content.toLowerCase();
-      if (questState === 'idle') {
-        if (npc.quest.triggerKeywords.some(kw => msgLower.includes(kw))) {
-          triggeredNow = true;
-          onQuestActivated();
-          questAddition = `\n\n[HIDDEN QUEST — ACTIVATE NOW]\nStart your reply with the token [QUEST] on its own line. Then in your own voice and character, send the player on a quest to find something written somewhere in town. The underlying challenge: "${npc.quest.question}" Be in-character and mysterious.`;
-        }
+      const hasCorrectAnswer = npc.quest.acceptedAnswers.some(a => msgLower.includes(a.toLowerCase()));
+      if (hasCorrectAnswer && (questState === 'idle' || questState === 'active')) {
+        triggeredNow = true;
+        onQuestActivated();
+        questAddition = `\n\n[QUEST ANSWER — CORRECT — MANDATORY]\nThe player found the correct answer and brought it back to you. You MUST begin your reply with the literal token [GIVE] on its own line (no other text before it). Then react in-character with genuine surprise or emotion. Do not skip [GIVE].`;
+      } else if (questState === 'idle' && npc.quest.triggerKeywords.some(kw => msgLower.includes(kw))) {
+        triggeredNow = true;
+        onQuestActivated();
+        questAddition = `\n\n[HIDDEN QUEST — ACTIVATE NOW]\nStart your reply with the token [QUEST] on its own line. Then in your own voice and character, send the player on a quest to find something written somewhere in town. The underlying challenge: "${npc.quest.question}" Be in-character and mysterious.`;
       } else if (questState === 'active') {
-        const correct = npc.quest.acceptedAnswers.some(a => msgLower.includes(a.toLowerCase()));
-        if (correct) {
-          questAddition = `\n\n[QUEST ANSWER — CORRECT]\nThe player gave the correct answer. React in character with surprise or delight. Give them [GIVE] now. The condition is fully met.`;
-        } else {
-          questAddition = `\n\n[QUEST — STILL SEARCHING]\nYou are waiting for the player to bring back a specific answer from somewhere in town. If they seem to be guessing or giving wrong answers, tell them in-character that they haven't found the right thing yet. If talking about something else, respond normally.`;
-        }
+        questAddition = `\n\n[QUEST — STILL SEARCHING]\nYou are waiting for the player to bring back a specific answer from somewhere in town. If they seem to be guessing or giving wrong answers, tell them in-character that they haven't found the right thing yet. If talking about something else, respond normally.`;
       }
     }
 
